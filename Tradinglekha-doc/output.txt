@@ -1,0 +1,68 @@
+PRODUCT SPECIFICATION
+AI-Powered Trading Journal Platform
+Full feature list, UI design style prompt, and light/dark colour palettes.
+1.  Product Overview
+The platform is a trading journal web application built for retail traders to track, analyse, and improve their performance. The standout feature is an AI Trade Analyzer: users upload a screenshot of their trade (from any broker or exchange), and the AI extracts the trade details automatically — symbol, entry/exit price, quantity, date/time, and profit or loss — removing the need for manual data entry.
+A key requirement is currency accuracy: since users may trade on Indian platforms (₹) or international/crypto platforms ($), the AI engine correctly detects and tags the currency for every trade, so P&L and analytics are never mixed up between Dollars and Rupees.
+2.  Core Platform Features
+3.  AI Trade Analyzer — How It Works
+This is the platform's core differentiator. For every uploaded trade screenshot, the engine will:
+Image parsing — Read the image and identify the broker/exchange layout it came from.
+Data extraction — Extract the instrument/symbol, entry price, exit price, quantity, timestamp, and resulting P&L.
+Currency detection — Detect whether the amounts are in ₹ (INR) or $ (USD), and tag every trade correctly.
+Anomaly detection — Flag unusual entries (e.g. an outsized loss, an odd lot size, a duplicate) for the trader to double-check.
+Auto-sync — Feed clean, structured data into the Dashboard, Analytics, and Discipline Board automatically.
+4.  Payments, Subscriptions & Access
+5.  AI Engine & Architecture
+6.  Standout Feature (USP)
+Account Switching is the platform's built-in differentiator: a trader can add up to two accounts and flip between them — say, a crypto account and an equity account — without logging in separately or losing either one's journal history. Most single-account journal tools don't offer this out of the box.
+7.  Frontend — UI Pages / Routes
+The platform works out to 19 distinct screens/routes.
+8.  Infrastructure & Hosting
+Domain — Registered separately by the client. Cloudflare Registrar (at-cost, no markup) is a solid option once ready to move, since hosting is on Cloudflare.
+Hosting — Cloudflare Pages, free tier — unlimited static requests and bandwidth, 500 builds/month, up to 100 custom domains, free SSL and DNS.
+Database — Supabase, free tier — 500 MB database, 1 GB file storage, 5 GB bandwidth/month, up to 50,000 monthly active users.
+Image Storage (S3) — Trade screenshots pass through an upload → analyze → delete flow, so storage cost stays close to zero — the extracted data is what's kept permanently, in Supabase.
+Everyday extras — Transactional email (Resend/Brevo), error monitoring (Sentry), analytics (Cloudflare Web Analytics), legal pages, periodic manual backups, and an optional business email — all covered by free tiers at launch.
+9.  Suggested Add-On Features
+Optional additions worth considering to differentiate this from existing trading-journal platforms (Tradervue, TradesViz, etc.):
+Direct broker/exchange sync — Let users connect Zerodha, Binance, MT4/5, and other broker APIs so trades sync automatically instead of relying only on screenshot uploads.
+Discipline Score — Turn the Discipline Board into a single trust score using the anomaly data already being captured.
+Multi-currency portfolio view — Unified portfolio view that auto-converts every trade to the user's home currency using live FX rates.
+Trade replay / backtesting — Let traders replay past trades against real price data to see what a different entry/exit would have done to their P&L.
+Verified P&L badges — Leaderboard badges backed by synced broker data, so rankings can't be faked with edited screenshots.
+Shareable trade cards — Auto-generate a shareable, Instagram-story-style trade card for social posting.
+Tax/report export — One-click P&L and F&O statements formatted for Indian tax filing.
+Risk-management nudges — Stop-loss and overtrading alerts based on Discipline Board patterns.
+Admin fraud monitoring — Live fraud/anomaly monitoring view in the Admin Panel.
+Role-based admin access — Support staff vs. finance vs. super-admin roles inside the Admin Panel.
+On-chain trade import — Let crypto users link a wallet address so trades can be pulled directly on-chain.
+Multi-wallet support — Support more than one crypto wallet per user.
+Expandable account limit — More than two accounts as a paid add-on for power users trading across several brokers.
+10.  UI Design Style Prompt
+Use this as a ready-to-paste prompt for an AI design tool, or as a creative brief for a designer.
+Overall Direction
+Design a modern, data-forward fintech dashboard for an AI-powered trading journal. The tone is calm, precise, and trustworthy — closer to a professional charting terminal than a consumer app, but still approachable for retail traders. Favour clarity over decoration: every screen should let numbers and trends read at a glance. Dark mode is the primary experience (traders often work at night and alongside charting tools), with a fully-designed light mode as an equal alternative, not an afterthought.
+Layout & Structure
+Grid — 12-column responsive grid, generous 24–32px gutters, content max-width ~1280px on desktop, single-column stacking below 768px.
+Navigation — Persistent left sidebar (collapsible to icons-only) for primary navigation; a slim top bar for account switcher, notifications, and search.
+Cards — Everything lives in cards — 12–16px corner radius, 1px hairline border, soft elevation shadow (avoid heavy drop shadows). Cards get consistent 20–24px internal padding.
+Density — Table-heavy screens (Trade History, Admin) use compact row height with clear zebra striping; dashboard widgets use looser spacing to let charts breathe.
+Typography
+Typeface — A clean geometric/grotesque sans — Inter, Manrope, or IBM Plex Sans — for UI text; a tabular-figure numeric font (e.g. Inter with tabular-nums) for all monetary and percentage values so columns of numbers align.
+Scale — Modest type scale: 13px captions, 14px body, 16px section labels, 20–24px card/page headings, 28–32px hero/landing headings. Bold weight reserved for emphasis, not default body text.
+Color Philosophy
+A restrained neutral base (near-black ink on near-white in light mode; deep navy-black on off-white text in dark mode) lets a single confident brand blue carry all primary actions and links. Green and red are reserved exclusively for profit/loss and trend direction, so their meaning never gets diluted by decorative use elsewhere. Amber marks anomalies and discipline warnings. See the palettes in Sections 11–12 for exact values.
+Components & Interaction
+Buttons — Solid primary-blue for main actions, ghost/outline for secondary, subtle scale + shadow-lift on hover, 8px corner radius.
+Charts — Line and candlestick charts with thin 1.5–2px strokes, soft area-fill gradients fading to transparent, gridlines at 8–10% opacity, profit/loss colour-coded automatically.
+Badges & tags — Pill-shaped, low-opacity tinted background with full-opacity text in the matching semantic colour (success/danger/warning/info).
+Empty & loading states — Skeleton loaders matching final layout shape; friendly, minimal illustrations for empty states (no trades yet, no flags, etc.).
+Motion — Fast, subtle transitions (150–200ms ease-out) — fade/slide for panels, no bouncy or playful easing; this is a tool for focus, not delight-driven marketing.
+Iconography & Imagery
+Outline-style icon set (Lucide or Phosphor), 1.5–2px stroke weight, consistently sized at 18–20px in UI chrome and 24px for feature highlights. Avoid photographic imagery inside the app; use abstract gradient mesh or chart-line motifs on marketing/landing surfaces only.
+11.  Color Palette — Light Mode
+Default background is a soft off-white (not pure white) so card surfaces stand out without heavy borders.
+12.  Color Palette — Dark Mode
+Backgrounds sit in the navy-black family rather than true black, which keeps long dashboard sessions easier on the eyes and lets shadows and elevation still read. Primary, accent, and info hues are lightened versions of their light-mode counterparts to maintain AA contrast on dark surfaces; success, danger, and warning are similarly brightened.
+Prepared by Vivek Kumar Verma  |  Full-Stack Developer

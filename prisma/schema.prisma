@@ -1,0 +1,115 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider  = "postgresql"
+  url       = env("DATABASE_URL")
+  directUrl = env("DIRECT_URL")
+}
+
+model Waitlist {
+  id        String   @id @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
+  email     String   @unique @db.VarChar(255)
+  source    String?  @default("coming-soon-page") @db.VarChar(100)
+  notified  Boolean? @default(false)
+  createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz
+
+  @@map("waitlist")
+}
+
+model User {
+  id               String   @id @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
+  email            String   @unique @db.VarChar(255)
+  passwordHash     String?  @map("password_hash") @db.VarChar(255)
+  fullName         String?  @map("full_name") @db.VarChar(255)
+  phoneNumber      String?  @map("phone_number") @db.VarChar(20)
+  bio              String?  @db.Text
+  mailingAddress   String?  @map("mailing_address") @db.Text
+  role             String?  @default("trader") @db.VarChar(50)
+  disciplineScore  Int?     @default(50) @map("discipline_score")
+  avatarUrl        String?  @map("avatar_url")
+  defaultCurrency  String?  @default("USD") @map("default_currency") @db.VarChar(10)
+  createdAt        DateTime @default(now()) @map("created_at") @db.Timestamptz
+  updatedAt        DateTime @default(now()) @map("updated_at") @db.Timestamptz
+
+  subscriptions     UserSubscription[]
+  brokerConnections BrokerConnection[]
+  trades            Trade[]
+  stats             UserStats?
+
+  @@index([disciplineScore(sort: Desc)])
+  @@map("users")
+}
+
+model UserSubscription {
+  id               String   @id @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
+  userId           String   @map("user_id") @db.Uuid
+  planType         String   @map("plan_type") @db.VarChar(50)
+  status           String   @db.VarChar(50)
+  trialEndsAt      DateTime? @map("trial_ends_at") @db.Timestamptz
+  currentPeriodEnd DateTime? @map("current_period_end") @db.Timestamptz
+  stripeCustomerId String?  @map("stripe_customer_id") @db.VarChar(255)
+  createdAt        DateTime @default(now()) @map("created_at") @db.Timestamptz
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("user_subscriptions")
+}
+
+model BrokerConnection {
+  id                   String   @id @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
+  userId               String   @map("user_id") @db.Uuid
+  brokerName           String   @map("broker_name") @db.VarChar(100)
+  encryptedCredentials String   @map("encrypted_credentials")
+  syncStatus           String?  @default("active") @map("sync_status") @db.VarChar(50)
+  lastSyncedAt         DateTime? @map("last_synced_at") @db.Timestamptz
+  createdAt            DateTime @default(now()) @map("created_at") @db.Timestamptz
+
+  user   User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+  trades Trade[]
+
+  @@index([userId])
+  @@map("broker_connections")
+}
+
+model Trade {
+  id                 String   @id @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
+  userId             String   @map("user_id") @db.Uuid
+  brokerConnectionId String?  @map("broker_connection_id") @db.Uuid
+  symbol             String   @db.VarChar(50)
+  side               String   @db.VarChar(10)
+  size               Decimal  @db.Decimal(18, 8)
+  currency           String   @default("USD") @db.VarChar(10)
+  entryPrice         Decimal  @map("entry_price") @db.Decimal(18, 8)
+  exitPrice          Decimal? @map("exit_price") @db.Decimal(18, 8)
+  realizedPnl        Decimal? @map("realized_pnl") @db.Decimal(18, 2)
+  fees               Decimal? @default(0.00) @db.Decimal(18, 2)
+  screenshotUrl      String?  @map("screenshot_url")
+  setupTags          String[] @map("setup_tags")
+  aiAnalysis         String?  @map("ai_analysis")
+  status             String?  @default("CLOSED") @db.VarChar(20)
+  openedAt           DateTime @map("opened_at") @db.Timestamptz
+  closedAt           DateTime? @map("closed_at") @db.Timestamptz
+  createdAt          DateTime @default(now()) @map("created_at") @db.Timestamptz
+
+  user             User              @relation(fields: [userId], references: [id], onDelete: Cascade)
+  brokerConnection BrokerConnection? @relation(fields: [brokerConnectionId], references: [id], onDelete: SetNull)
+
+  @@index([userId])
+  @@index([openedAt])
+  @@map("trades")
+}
+
+model UserStats {
+  userId          String   @id @map("user_id") @db.Uuid
+  totalTrades     Int?     @default(0) @map("total_trades")
+  winRate         Decimal? @default(0.00) @map("win_rate") @db.Decimal(5, 2)
+  profitFactor    Decimal? @default(0.00) @map("profit_factor") @db.Decimal(10, 2)
+  monthlyRankTier String?  @default("Unranked") @map("monthly_rank_tier") @db.VarChar(50)
+  updatedAt       DateTime @default(now()) @map("updated_at") @db.Timestamptz
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("user_stats")
+}
