@@ -4,6 +4,7 @@ import { Zap, AlertTriangle, ChevronRight, TrendingUp, Target, Activity, CheckCi
 import Link from "next/link";
 import { EquityChart } from "@/components/equity-chart";
 import { MagicCard } from "@/components/ui/magic-card";
+import { AnimatedCounter } from "@/components/ui/animated-counter";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { motion, type Variants } from "framer-motion";
 import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip } from "recharts";
@@ -83,7 +84,11 @@ export default function Home() {
                 <TrendingUp size={14} className="text-emerald-500" /> Net P/L
               </p>
               <div className="text-3xl font-bold text-foreground">
-                {currency === 'USD' ? '$' : '₹'}{stats ? stats.netProfit.toLocaleString() : '0.00'}
+                <AnimatedCounter 
+                  value={stats ? stats.netProfit : 0} 
+                  prefix={currency === 'USD' ? '$' : '₹'} 
+                  decimals={2}
+                />
               </div>
             </div>
             <div className="mt-4 flex items-center text-xs text-emerald-600 dark:text-emerald-400 font-medium bg-emerald-50 dark:bg-emerald-500/10 w-fit px-2.5 py-1 rounded-md border border-emerald-100 dark:border-emerald-500/20">
@@ -100,12 +105,16 @@ export default function Home() {
                 <Activity size={14} className="text-blue-500" /> Gross Profit
               </p>
               <div className="text-3xl font-bold text-emerald-600 dark:text-emerald-400">
-                +{currency === 'USD' ? '$' : '₹'}{stats ? stats.grossProfit.toLocaleString() : '0.00'}
+                <AnimatedCounter 
+                  value={stats ? stats.grossProfit : 0} 
+                  prefix={`+${currency === 'USD' ? '$' : '₹'}`} 
+                  decimals={2}
+                />
               </div>
             </div>
             <div className="mt-4 text-xs text-muted-foreground font-medium flex items-center gap-1.5">
               <div className="w-1.5 h-1.5 rounded-full bg-blue-500 animate-pulse"></div>
-              {stats ? stats.totalTrades : 0} Total Trades
+              <AnimatedCounter value={stats ? stats.totalTrades : 0} /> Total Trades
             </div>
           </MagicCard>
         </motion.div>
@@ -116,7 +125,9 @@ export default function Home() {
               <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-2 flex items-center gap-2">
                 <Target size={14} className="text-indigo-500" /> Win Rate
               </p>
-              <div className="text-3xl font-bold text-foreground">{stats ? stats.winRate : '0.0'}%</div>
+              <div className="text-3xl font-bold text-foreground">
+                <AnimatedCounter value={stats ? stats.winRate : 0} suffix="%" decimals={1} />
+              </div>
             </div>
             <div className="mt-4">
               <div className="w-full bg-secondary rounded-full h-1.5 overflow-hidden shadow-inner">
@@ -135,12 +146,18 @@ export default function Home() {
           <MagicCard className="p-4 flex flex-col justify-center items-center text-center bg-card">
             <p className="text-[10px] font-semibold text-muted-foreground uppercase tracking-wider mb-1">Gross Loss</p>
             <div className="text-sm font-bold text-rose-500">
-               -{currency === 'USD' ? '$' : '₹'}{stats ? stats.grossLoss.toLocaleString() : '0.00'}
+               <AnimatedCounter 
+                  value={stats ? stats.grossLoss : 0} 
+                  prefix={`-${currency === 'USD' ? '$' : '₹'}`} 
+                  decimals={2}
+               />
             </div>
           </MagicCard>
           <MagicCard className="p-4 flex flex-col justify-center items-center text-center bg-card">
             <p className="text-[10px] font-semibold text-muted-foreground uppercase tracking-wider mb-1">Profit Factor</p>
-            <div className="text-2xl font-bold text-foreground">{stats ? stats.profitFactor : '0.00'}</div>
+            <div className="text-2xl font-bold text-foreground">
+              <AnimatedCounter value={stats ? stats.profitFactor : 0} decimals={2} />
+            </div>
           </MagicCard>
         </motion.div>
       </div>
@@ -202,7 +219,9 @@ export default function Home() {
                 </PieChart>
               </ResponsiveContainer>
               <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 text-center pointer-events-none">
-                 <div className="text-2xl font-bold text-foreground tracking-tighter">{stats ? stats.profitFactor : '0.00'}</div>
+                 <div className="text-2xl font-bold text-foreground tracking-tighter">
+                   <AnimatedCounter value={stats ? stats.profitFactor : 0} decimals={2} />
+                 </div>
                  <div className="text-[10px] text-muted-foreground font-bold uppercase tracking-wider">P. Factor</div>
               </div>
             </div>

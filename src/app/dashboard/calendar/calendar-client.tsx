@@ -4,6 +4,7 @@ import { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { format, startOfMonth, endOfMonth, eachDayOfInterval, isSameDay, subMonths, addMonths, isToday, parseISO } from 'date-fns';
 import { ChevronLeft, ChevronRight, TrendingUp, TrendingDown, Clock, ArrowUpRight, ArrowDownRight } from 'lucide-react';
+import { AnimatedCounter } from '@/components/ui/animated-counter';
 
 export function CalendarClient({ trades }: { trades: any[] }) {
   const [currentDate, setCurrentDate] = useState(new Date());
@@ -130,13 +131,17 @@ export function CalendarClient({ trades }: { trades: any[] }) {
               <div className="bg-secondary p-4 rounded-xl">
                 <p className="text-xs text-muted-foreground uppercase font-bold tracking-wider mb-1">Net PnL</p>
                 <div className={`text-2xl font-black ${selectedStats.totalPnl >= 0 ? 'text-emerald-500' : 'text-rose-500'}`}>
-                  {selectedStats.totalPnl >= 0 ? '+' : '-'}${Math.abs(selectedStats.totalPnl).toFixed(2)}
+                  <AnimatedCounter 
+                    value={Math.abs(selectedStats.totalPnl)} 
+                    prefix={selectedStats.totalPnl >= 0 ? '+$' : '-$'} 
+                    decimals={2} 
+                  />
                 </div>
               </div>
               <div className="bg-secondary p-4 rounded-xl">
                 <p className="text-xs text-muted-foreground uppercase font-bold tracking-wider mb-1">Win Rate</p>
                 <div className="text-2xl font-black text-foreground">
-                  {selectedStats.winRate.toFixed(0)}%
+                  <AnimatedCounter value={selectedStats.winRate} suffix="%" decimals={0} />
                 </div>
                 <div className="text-xs text-muted-foreground mt-1 font-medium">
                   {selectedStats.wins}W - {selectedStats.losses}L
