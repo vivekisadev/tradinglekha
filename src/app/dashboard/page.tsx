@@ -52,18 +52,22 @@ export default function Home() {
   const isPro = stats ? stats.isPro : false;
   const [showProModal, setShowProModal] = useState(false);
 
-  // Fetch dynamic stats and trades from our new API route
+  // Fetch dynamic stats and trades concurrently to avoid sequential loading delays
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const statsRes = await fetch(`/api/trades/stats?currency=${currency}`);
+        const [statsRes, tradesRes] = await Promise.all([
+          fetch(`/api/trades/stats?currency=${currency}`),
+          fetch(`/api/trades`)
+        ]);
+
         const statsData = await statsRes.json();
+        const tradesData = await tradesRes.json();
+
         if (statsData && !statsData.error) {
           setStats(statsData);
         }
 
-        const tradesRes = await fetch(`/api/trades`);
-        const tradesData = await tradesRes.json();
         if (Array.isArray(tradesData)) {
           // Filter by currency
           const filteredTrades = tradesData.filter(

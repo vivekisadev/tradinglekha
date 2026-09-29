@@ -81,6 +81,10 @@ export function EquityChart({ timeframe = '90D', trades = [] }: { timeframe?: '9
           strokeWidth={3}
           dot={false}
           activeDot={{ r: 6, fill: '#10b981', stroke: 'var(--card)', strokeWidth: 2 }}
+          isAnimationActive={true}
+          animationDuration={2000}
+          animationBegin={0}
+          animationEasing="ease-out"
         />
       </LineChart>
     </ResponsiveContainer>
