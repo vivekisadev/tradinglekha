@@ -4,6 +4,7 @@ import { Filter, BookOpen, Trash2, FileText, ChevronDown, ChevronUp, TrendingUp,
 import { motion, AnimatePresence } from "framer-motion";
 import { Button } from "@/components/base/buttons/button";
 import { Badge } from "@/components/base/badges/badges";
+import { LogTradeModal } from "@/components/log-trade-modal";
 
 import { useSearchParams } from "next/navigation";
 import { Suspense } from "react";
@@ -73,10 +74,12 @@ function JournalContent() {
             <Filter size={16} className="mr-2" />
             Filter
           </Button>
-          <Button className="font-medium flex items-center bg-primary text-primary-foreground hover:bg-primary/90">
-            <BookOpen size={16} className="mr-2" />
-            <span>New Entry</span>
-          </Button>
+          <LogTradeModal customTrigger={
+            <Button className="font-medium flex items-center bg-primary text-primary-foreground hover:bg-primary/90 pointer-events-none">
+              <BookOpen size={16} className="mr-2" />
+              <span>New Entry</span>
+            </Button>
+          } />
         </div>
       </div>
 

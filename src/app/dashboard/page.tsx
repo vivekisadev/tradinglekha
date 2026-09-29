@@ -9,6 +9,9 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 import { motion, type Variants } from "framer-motion";
 import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip } from "recharts";
 
+import { PricingSection } from "@/components/pricing-section";
+import { createPortal } from "react-dom";
+
 const container: Variants = {
   hidden: { opacity: 0 },
   show: {
@@ -30,8 +33,8 @@ export default function Home() {
   const [stats, setStats] = useState<any>(null);
   const [trades, setTrades] = useState<any[]>([]);
 
-  // Ideally this comes from a global AuthProvider
-  const isPro = true; 
+  const isPro = stats ? stats.isPro : false; 
+  const [showProModal, setShowProModal] = useState(false);
   
   // Fetch dynamic stats and trades from our new API route
   useEffect(() => {
@@ -69,11 +72,53 @@ export default function Home() {
              <button onClick={() => setCurrency('INR')} className={`px-4 py-1.5 text-xs font-bold rounded shadow-sm transition-all ${currency === 'INR' ? 'bg-card text-foreground' : 'text-muted-foreground hover:text-foreground'}`}>INR</button>
           </div>
         ) : (
-          <div className="px-4 py-1.5 text-xs font-bold rounded bg-secondary text-muted-foreground border border-border">
-            {currency} (Free Plan Locked)
-          </div>
+          <button 
+            onClick={() => setShowProModal(true)}
+            className="flex items-center gap-2 px-4 py-2 text-xs font-bold rounded-lg bg-secondary text-muted-foreground border border-border hover:bg-secondary/80 hover:text-foreground transition-all group"
+          >
+            {currency} 
+            <span className="flex items-center gap-1 text-[10px] uppercase bg-primary/10 text-primary px-1.5 py-0.5 rounded-sm">
+              <Zap size={10} className="fill-primary" /> Pro
+            </span>
+          </button>
         )}
       </div>
+
+      {/* Pro Upgrade Modal */}
+      {typeof document !== 'undefined' && createPortal(
+        <AnimatePresence>
+          {showProModal && (
+            <div className="fixed inset-0 z-[9999] flex items-center justify-center">
+              <motion.div
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                exit={{ opacity: 0 }}
+                onClick={() => setShowProModal(false)}
+                className="absolute inset-0 bg-background/80 backdrop-blur-sm"
+              />
+              <motion.div
+                initial={{ opacity: 0, scale: 0.95, y: 20 }}
+                animate={{ opacity: 1, scale: 1, y: 0 }}
+                exit={{ opacity: 0, scale: 0.95, y: 20 }}
+                className="relative w-full max-w-5xl mx-4 z-[10000] max-h-[90vh] overflow-y-auto custom-scrollbar rounded-2xl bg-card border border-border shadow-2xl"
+              >
+                <div className="sticky top-0 right-0 z-50 flex justify-end p-4">
+                  <button
+                    onClick={() => setShowProModal(false)}
+                    className="p-2 bg-black/50 hover:bg-black/70 text-white rounded-full transition-colors backdrop-blur-md"
+                  >
+                    <XCircle size={24} />
+                  </button>
+                </div>
+                <div className="p-2 -mt-12">
+                   <Pricing />
+                </div>
+              </motion.div>
+            </div>
+          )}
+        </AnimatePresence>,
+        document.body
+      )}
 
       {/* Top Stats Row */}
       <div className="grid grid-cols-1 md:grid-cols-4 gap-4">

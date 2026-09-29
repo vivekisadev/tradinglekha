@@ -1,29 +1,53 @@
 "use client";
 
 import { motion, AnimatePresence } from "framer-motion";
-import { Lock, Sparkles, ChevronRight, X, Check } from "lucide-react";
+import { Lock, Sparkles, ChevronRight, X, CheckCircle2 } from "lucide-react";
 import Link from "next/link";
 import { MagicCard } from "@/components/ui/magic-card";
 import { useState } from "react";
 
-export function ProFeatureLock({ featureName, onUnlock }: { featureName: string, onUnlock?: () => void }) {
+export function ProFeatureLock({ 
+  isPro = false, 
+  title = "Pro Feature", 
+  featureName, 
+  description,
+  children 
+}: { 
+  isPro?: boolean;
+  title?: string;
+  featureName?: string;
+  description?: string;
+  children?: React.ReactNode 
+}) {
   const [isOpen, setIsOpen] = useState(false);
+  const displayTitle = featureName || title;
+
+  if (isPro) {
+    return <>{children}</>;
+  }
 
   return (
     <>
       {/* The locked feature placeholder/button */}
       <div 
         onClick={() => setIsOpen(true)}
-        className="relative group cursor-pointer overflow-hidden rounded-xl border border-border bg-card p-6 flex flex-col items-center justify-center text-center hover:border-sky-500/50 transition-colors h-[200px]"
+        className="relative group cursor-pointer overflow-hidden rounded-xl border border-border bg-card flex flex-col hover:border-sky-500/50 transition-colors"
       >
-        <div className="absolute inset-0 bg-secondary/50 backdrop-blur-[2px] z-10 flex flex-col items-center justify-center group-hover:backdrop-blur-sm transition-all">
+        {/* Blurry Overlay */}
+        <div className="absolute inset-0 bg-background/50 backdrop-blur-[6px] z-20 flex flex-col items-center justify-center group-hover:backdrop-blur-md transition-all text-center p-6">
           <div className="w-12 h-12 rounded-full bg-background border border-border flex items-center justify-center shadow-lg mb-3">
             <Lock className="w-5 h-5 text-muted-foreground group-hover:text-sky-500 transition-colors" />
           </div>
-          <h4 className="font-bold text-foreground">{featureName}</h4>
-          <p className="text-xs text-muted-foreground mt-1 flex items-center gap-1 group-hover:text-sky-500 transition-colors">
-            <Sparkles size={12} /> Pro Feature
+          <h4 className="text-xl font-bold text-foreground">{displayTitle}</h4>
+          {description && <p className="text-sm text-muted-foreground mt-2 max-w-md">{description}</p>}
+          <p className="text-xs font-semibold px-3 py-1.5 rounded-full bg-sky-500/10 text-sky-500 mt-4 flex items-center gap-1 group-hover:bg-sky-500 group-hover:text-white transition-all shadow-sm border border-sky-500/20">
+            <Sparkles size={12} /> Unlock Pro Feature
           </p>
+        </div>
+        
+        {/* The Actual Content (Blurred) */}
+        <div className="relative z-10 pointer-events-none select-none opacity-40">
+          {children || <div className="h-[300px] w-full" />}
         </div>
       </div>
 
@@ -96,7 +120,7 @@ export function ProFeatureLock({ featureName, onUnlock }: { featureName: string,
                     ].map((feat) => (
                       <li key={feat} className="flex items-start gap-2 text-sm text-muted-foreground">
                         <div className="w-5 h-5 rounded-full bg-sky-100 dark:bg-sky-500/10 flex items-center justify-center shrink-0 mt-0.5">
-                          <Check className="w-3 h-3 text-sky-600 dark:text-sky-400" />
+                          <CheckCircle2 className="w-3 h-3 text-sky-600 dark:text-sky-400" />
                         </div>
                         {feat}
                       </li>

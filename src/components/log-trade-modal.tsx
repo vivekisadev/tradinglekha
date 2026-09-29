@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { Plus, X, UploadCloud, Calendar, DollarSign, Activity } from "lucide-react";
 
-export function LogTradeModal() {
+export function LogTradeModal({ customTrigger }: { customTrigger?: React.ReactNode }) {
   const [isOpen, setIsOpen] = useState(false);
   const [isProcessing, setIsProcessing] = useState(false);
   const [processStep, setProcessStep] = useState("");
@@ -64,6 +64,13 @@ export function LogTradeModal() {
   };
 
   if (!isOpen) {
+    if (customTrigger) {
+      return (
+        <div onClick={() => setIsOpen(true)}>
+          {customTrigger}
+        </div>
+      );
+    }
     return (
       <button 
         onClick={() => setIsOpen(true)}

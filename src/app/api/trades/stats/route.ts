@@ -53,6 +53,7 @@ export async function GET(req: Request) {
 
     return NextResponse.json({
       currency: targetCurrency,
+      isPro: user.isPro,
       totalTrades,
       winRate: winRate.toFixed(2),
       profitFactor: profitFactor.toFixed(2),
