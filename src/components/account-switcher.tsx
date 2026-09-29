@@ -1,6 +1,7 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
+import { createPortal } from 'react-dom';
 import { ChevronDown, Plus, Check, Lock, X, Sparkles } from 'lucide-react';
 import { Dropdown } from '@/components/base/dropdown/dropdown';
 import { Button } from 'react-aria-components';
@@ -21,6 +22,9 @@ const ACCOUNTS: Account[] = [
 export function AccountSwitcher({ isPro = false }: { isPro?: boolean }) {
   const [activeAccountId, setActiveAccountId] = useState(ACCOUNTS[0].id);
   const [showUpgradeModal, setShowUpgradeModal] = useState(false);
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => setMounted(true), []);
 
   const activeAccount = ACCOUNTS.find(a => a.id === activeAccountId) || ACCOUNTS[0];
 
@@ -81,56 +85,59 @@ export function AccountSwitcher({ isPro = false }: { isPro?: boolean }) {
       </Dropdown.Root>
 
       {/* Upgrade Modal for Basic Users */}
-      <AnimatePresence>
-        {showUpgradeModal && (
-          <div className="fixed inset-0 z-[100] flex items-center justify-center p-4">
-            <motion.div 
-              initial={{ opacity: 0 }} 
-              animate={{ opacity: 1 }} 
-              exit={{ opacity: 0 }} 
-              className="absolute inset-0 bg-background/80 backdrop-blur-md"
-              onClick={() => setShowUpgradeModal(false)}
-            />
-            
-            <motion.div
-              initial={{ opacity: 0, scale: 0.95, y: 20 }}
-              animate={{ opacity: 1, scale: 1, y: 0 }}
-              exit={{ opacity: 0, scale: 0.95, y: 20 }}
-              className="relative w-full max-w-md bg-card border border-border rounded-3xl shadow-2xl p-8 z-[101] text-center"
-            >
-              <button 
+      {mounted && createPortal(
+        <AnimatePresence>
+          {showUpgradeModal && (
+            <div className="fixed inset-0 z-[100] flex items-center justify-center p-4">
+              <motion.div 
+                initial={{ opacity: 0 }} 
+                animate={{ opacity: 1 }} 
+                exit={{ opacity: 0 }} 
+                className="absolute inset-0 bg-background/80 backdrop-blur-md"
                 onClick={() => setShowUpgradeModal(false)}
-                className="absolute top-4 right-4 p-2 rounded-full bg-secondary text-muted-foreground hover:text-foreground transition-colors"
-              >
-                <X size={16} />
-              </button>
-
-              <div className="w-12 h-12 rounded-full bg-sky-500/10 flex items-center justify-center mx-auto mb-4 border border-sky-500/20">
-                <Sparkles className="w-6 h-6 text-sky-500" />
-              </div>
+              />
               
-              <h3 className="text-xl font-bold text-foreground mb-2">Unlock Multiple Accounts</h3>
-              <p className="text-sm text-muted-foreground mb-6">
-                Basic plan users are limited to 1 Trading Account. Upgrade to Pro to separate your F&O, Commodity, and Crypto trades into distinct ledgers.
-              </p>
+              <motion.div
+                initial={{ opacity: 0, scale: 0.95, y: 20 }}
+                animate={{ opacity: 1, scale: 1, y: 0 }}
+                exit={{ opacity: 0, scale: 0.95, y: 20 }}
+                className="relative w-full max-w-md bg-card border border-border rounded-3xl shadow-2xl p-8 z-[101] text-center"
+              >
+                <button 
+                  onClick={() => setShowUpgradeModal(false)}
+                  className="absolute top-4 right-4 p-2 rounded-full bg-secondary text-muted-foreground hover:text-foreground transition-colors"
+                >
+                  <X size={16} />
+                </button>
 
-              <Link 
-                href="/#pricing" 
-                onClick={() => setShowUpgradeModal(false)}
-                className="flex items-center justify-center w-full py-3 bg-foreground text-background rounded-xl font-bold hover:bg-foreground/90 transition-colors mb-2"
-              >
-                Upgrade to Pro
-              </Link>
-              <Link 
-                href="/pro"
-                className="flex items-center justify-center w-full py-3 bg-secondary text-foreground rounded-xl font-bold hover:bg-secondary/80 transition-colors"
-              >
-                View Pro Features
-              </Link>
-            </motion.div>
-          </div>
-        )}
-      </AnimatePresence>
+                <div className="w-12 h-12 rounded-full bg-sky-500/10 flex items-center justify-center mx-auto mb-4 border border-sky-500/20">
+                  <Sparkles className="w-6 h-6 text-sky-500" />
+                </div>
+                
+                <h3 className="text-xl font-bold text-foreground mb-2">Unlock Multiple Accounts</h3>
+                <p className="text-sm text-muted-foreground mb-6">
+                  Basic plan users are limited to 1 Trading Account. Upgrade to Pro to separate your F&O, Commodity, and Crypto trades into distinct ledgers.
+                </p>
+
+                <Link 
+                  href="/#pricing" 
+                  onClick={() => setShowUpgradeModal(false)}
+                  className="flex items-center justify-center w-full py-3 bg-foreground text-background rounded-xl font-bold hover:bg-foreground/90 transition-colors mb-2"
+                >
+                  Upgrade to Pro
+                </Link>
+                <Link 
+                  href="/pro"
+                  className="flex items-center justify-center w-full py-3 bg-secondary text-foreground rounded-xl font-bold hover:bg-secondary/80 transition-colors"
+                >
+                  View Pro Features
+                </Link>
+              </motion.div>
+            </div>
+          )}
+        </AnimatePresence>,
+        document.body
+      )}
     </>
   );
 }
