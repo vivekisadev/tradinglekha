@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { CheckCircle2 } from "lucide-react";
+import { CheckCircle2, Sparkles, Crown } from "lucide-react";
 import Link from "next/link";
 
 export function PricingSection({ isLoggedIn = false, isPro = false }: { isLoggedIn?: boolean, isPro?: boolean }) {
@@ -14,19 +14,33 @@ export function PricingSection({ isLoggedIn = false, isPro = false }: { isLogged
       name: "Basic",
       desc: "For traders starting their journaling habit.",
       price: { monthly: 0, yearly: 0 },
-      features: ["Manual trade logging", "Basic P&L analytics", "Up to 50 trades/month", "Community support"]
+      features: (cycle: string) => ["Manual trade logging", "Basic P&L analytics", "1 Trading Account", "Single Currency Dashboard"]
     },
     {
       name: "Pro",
       desc: "For serious traders treating it like a business.",
       price: { monthly: 39, yearly: 31 },
-      features: ["Automated broker sync", "AI Behavioral leak detection", "Advanced Playbook system", "Unlimited trades & history"]
+      features: (cycle: string) => [
+        "AI Vision Trade Scanning", 
+        "Advanced Analytics & Playbooks", 
+        cycle === 'yearly' ? "3 Trading Accounts (F&O, Commodity, etc.)" : "2 Trading Accounts", 
+        "Multi-Currency Dashboard Toggle"
+      ],
+      showcaseUrl: "/pro",
+      icon: Sparkles
     },
     {
       name: "Elite",
       desc: "For funded traders and trading desks.",
       price: { monthly: 99, yearly: 79 },
-      features: ["Multiple broker connections", "Prop firm integrations", "Custom AI training", "Priority 24/7 support"]
+      features: (cycle: string) => [
+        "Multiple broker connections (V2)", 
+        "Prop firm integrations", 
+        cycle === 'yearly' ? "Unlimited Trading Accounts" : "3 Trading Accounts", 
+        "Priority 24/7 support"
+      ],
+      showcaseUrl: "/elite",
+      icon: Crown
     }
   ];
 
@@ -67,6 +81,7 @@ export function PricingSection({ isLoggedIn = false, isPro = false }: { isLogged
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6 max-w-6xl mx-auto items-center">
         {plans.map((plan, i) => {
           const isActive = activePlan === i;
+          const PlanIcon = plan.icon;
           
           return (
             <motion.div
@@ -92,7 +107,14 @@ export function PricingSection({ isLoggedIn = false, isPro = false }: { isLogged
                 </div>
               )}
               
-              <h3 className={`text-2xl font-bold mb-2 ${isActive ? 'text-sky-950' : 'text-foreground'}`}>{plan.name}</h3>
+              <div className="flex items-center justify-between mb-2">
+                <h3 className={`text-2xl font-bold ${isActive ? 'text-sky-950' : 'text-foreground'}`}>{plan.name}</h3>
+                {plan.showcaseUrl && (
+                  <Link href={plan.showcaseUrl} className={`flex items-center gap-1 text-[10px] font-bold uppercase px-2 py-1 rounded-full border ${isActive ? 'bg-sky-200/50 text-sky-800 border-sky-300 hover:bg-sky-200' : 'bg-secondary text-muted-foreground border-border hover:bg-border/50'} transition-colors`}>
+                    View Showcase
+                  </Link>
+                )}
+              </div>
               <p className={`text-sm mb-6 ${isActive ? 'text-sky-800' : 'text-muted-foreground'}`}>{plan.desc}</p>
               
               {/* Rolling Numbers */}
@@ -102,7 +124,7 @@ export function PricingSection({ isLoggedIn = false, isPro = false }: { isLogged
                   <AnimatePresence mode="popLayout">
                     {plan.price[billingCycle].toString().split('').map((digit, idx) => (
                       <motion.span
-                        key={`${digit}-${idx}`}
+                        key={`${digit}-${idx}-${billingCycle}`}
                         initial={{ y: "100%", opacity: 0 }}
                         animate={{ y: "0%", opacity: 1 }}
                         exit={{ y: "-100%", opacity: 0 }}
@@ -118,9 +140,10 @@ export function PricingSection({ isLoggedIn = false, isPro = false }: { isLogged
               </div>
               
               <ul className="flex flex-col gap-4 mb-10 flex-1">
-                {plan.features.map(feature => (
-                  <li key={feature} className={`flex items-center gap-3 text-sm ${isActive ? 'text-sky-900' : 'text-muted-foreground'}`}>
-                    <CheckCircle2 className={`w-5 h-5 shrink-0 ${isActive ? 'text-emerald-400' : 'text-emerald-500'}`} /> {feature}
+                {plan.features(billingCycle).map(feature => (
+                  <li key={feature} className={`flex items-start gap-3 text-sm ${isActive ? 'text-sky-900' : 'text-muted-foreground'}`}>
+                    <CheckCircle2 className={`w-5 h-5 shrink-0 mt-0.5 ${isActive ? 'text-emerald-400' : 'text-emerald-500'}`} /> 
+                    <span>{feature}</span>
                   </li>
                 ))}
               </ul>
@@ -129,7 +152,7 @@ export function PricingSection({ isLoggedIn = false, isPro = false }: { isLogged
                 let btnText = "Start 14-Day Free Trial";
                 let btnHref = "/auth/signup";
                 
-                if (plan.price[billingCycle] === 0) {
+                if (plan.price.monthly === 0) {
                   if (isLoggedIn) {
                     btnText = isPro ? "Downgrade to Basic" : "Current Plan (Dashboard)";
                     btnHref = "/dashboard";
