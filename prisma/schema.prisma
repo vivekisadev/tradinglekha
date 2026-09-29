@@ -33,10 +33,12 @@ model User {
   createdAt        DateTime @default(now()) @map("created_at") @db.Timestamptz
   updatedAt        DateTime @default(now()) @map("updated_at") @db.Timestamptz
 
-  subscriptions     UserSubscription[]
-  brokerConnections BrokerConnection[]
-  trades            Trade[]
-  stats             UserStats?
+  subscriptions    UserSubscription[]
+  accounts         Account[]
+  strategies       Strategy[]
+  journals         DailyJournal[]
+  trades           Trade[]
+  stats            UserStats?
 
   @@index([disciplineScore(sort: Desc)])
   @@map("users")
@@ -57,48 +59,102 @@ model UserSubscription {
   @@map("user_subscriptions")
 }
 
-model BrokerConnection {
-  id                   String   @id @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
-  userId               String   @map("user_id") @db.Uuid
-  brokerName           String   @map("broker_name") @db.VarChar(100)
-  encryptedCredentials String   @map("encrypted_credentials")
-  syncStatus           String?  @default("active") @map("sync_status") @db.VarChar(50)
-  lastSyncedAt         DateTime? @map("last_synced_at") @db.Timestamptz
-  createdAt            DateTime @default(now()) @map("created_at") @db.Timestamptz
+model Account {
+  id          String   @id @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
+  userId      String   @map("user_id") @db.Uuid
+  name        String   @db.VarChar(100)
+  accountType String   @default("General") @map("account_type") @db.VarChar(50)
+  currency    String   @default("USD") @db.VarChar(10)
+  balance     Decimal? @default(0.00) @db.Decimal(18, 2)
+  createdAt   DateTime @default(now()) @map("created_at") @db.Timestamptz
 
   user   User    @relation(fields: [userId], references: [id], onDelete: Cascade)
   trades Trade[]
 
   @@index([userId])
-  @@map("broker_connections")
+  @@map("accounts")
+}
+
+model Strategy {
+  id          String   @id @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
+  userId      String   @map("user_id") @db.Uuid
+  name        String   @db.VarChar(100)
+  description String?  @db.Text
+  rules       String[]
+  createdAt   DateTime @default(now()) @map("created_at") @db.Timestamptz
+
+  user   User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+  trades Trade[]
+
+  @@index([userId])
+  @@map("strategies")
+}
+
+model DailyJournal {
+  id          String   @id @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
+  userId      String   @map("user_id") @db.Uuid
+  date        DateTime @db.Date
+  mood        String?  @db.VarChar(50)
+  notes       String?  @db.Text
+  lessons     String?  @db.Text
+  createdAt   DateTime @default(now()) @map("created_at") @db.Timestamptz
+  updatedAt   DateTime @default(now()) @map("updated_at") @db.Timestamptz
+
+  user   User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, date])
+  @@map("daily_journals")
 }
 
 model Trade {
   id                 String   @id @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
   userId             String   @map("user_id") @db.Uuid
-  brokerConnectionId String?  @map("broker_connection_id") @db.Uuid
+  accountId          String?  @map("account_id") @db.Uuid
+  strategyId         String?  @map("strategy_id") @db.Uuid
+  assetClass         String   @default("Equity") @map("asset_class") @db.VarChar(50) // Equity, F&O, Commodity, Crypto
   symbol             String   @db.VarChar(50)
-  side               String   @db.VarChar(10)
-  size               Decimal  @db.Decimal(18, 8)
+  side               String   @db.VarChar(10) // LONG, SHORT
   currency           String   @default("USD") @db.VarChar(10)
-  entryPrice         Decimal  @map("entry_price") @db.Decimal(18, 8)
+  status             String   @default("CLOSED") @db.VarChar(20)
+  
+  // Aggregate fields (computed from Executions, or manual entry)
+  size               Decimal? @db.Decimal(18, 8)
+  entryPrice         Decimal? @map("entry_price") @db.Decimal(18, 8)
   exitPrice          Decimal? @map("exit_price") @db.Decimal(18, 8)
   realizedPnl        Decimal? @map("realized_pnl") @db.Decimal(18, 2)
   fees               Decimal? @default(0.00) @db.Decimal(18, 2)
+  
   screenshotUrl      String?  @map("screenshot_url")
-  setupTags          String[] @map("setup_tags")
+  mistakes           String[]
   aiAnalysis         String?  @map("ai_analysis")
-  status             String?  @default("CLOSED") @db.VarChar(20)
+  
   openedAt           DateTime @map("opened_at") @db.Timestamptz
   closedAt           DateTime? @map("closed_at") @db.Timestamptz
   createdAt          DateTime @default(now()) @map("created_at") @db.Timestamptz
 
-  user             User              @relation(fields: [userId], references: [id], onDelete: Cascade)
-  brokerConnection BrokerConnection? @relation(fields: [brokerConnectionId], references: [id], onDelete: SetNull)
+  user       User       @relation(fields: [userId], references: [id], onDelete: Cascade)
+  account    Account?   @relation(fields: [accountId], references: [id], onDelete: SetNull)
+  strategy   Strategy?  @relation(fields: [strategyId], references: [id], onDelete: SetNull)
+  executions Execution[]
 
   @@index([userId])
   @@index([openedAt])
   @@map("trades")
+}
+
+model Execution {
+  id          String   @id @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
+  tradeId     String   @map("trade_id") @db.Uuid
+  type        String   @db.VarChar(20) // BUY, SELL
+  price       Decimal  @db.Decimal(18, 8)
+  size        Decimal  @db.Decimal(18, 8)
+  fees        Decimal? @default(0.00) @db.Decimal(18, 2)
+  executedAt  DateTime @map("executed_at") @db.Timestamptz
+
+  trade Trade @relation(fields: [tradeId], references: [id], onDelete: Cascade)
+
+  @@index([tradeId])
+  @@map("executions")
 }
 
 model UserStats {
