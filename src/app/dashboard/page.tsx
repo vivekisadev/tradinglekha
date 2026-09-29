@@ -1,5 +1,5 @@
 'use client';
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Zap, AlertTriangle, ChevronRight, TrendingUp, Target, Activity, CheckCircle2, XCircle, ArrowUpRight, ArrowDownRight, Clock } from "lucide-react";
 import Link from "next/link";
 import { EquityChart } from "@/components/equity-chart";
@@ -21,46 +21,40 @@ const item: Variants = {
   show: { opacity: 1, y: 0, transition: { type: "spring", stiffness: 300, damping: 24 } }
 };
 
-const winLossData = [
-  { name: 'Wins', value: 68 },
-  { name: 'Losses', value: 32 },
-];
 const COLORS = ['#10b981', '#f43f5e'];
-
-const recentTrades = [
-  { id: 1, ticker: "NVDA", company: "NVIDIA Corp", setup: "VWAP Reclaim", side: "Long", entry: 482.10, exit: 491.50, pnl: 1410.00, time: "2 hours ago" },
-  { id: 2, ticker: "TSLA", company: "Tesla, Inc", setup: "Gap & Go", side: "Short", entry: 242.15, exit: 245.50, pnl: -335.00, time: "Yesterday" },
-  { id: 3, ticker: "SPY", company: "S&P 500 ETF", setup: "Breakout", side: "Long", entry: 450.02, exit: null, pnl: 820.40, time: "Yesterday" },
-  { id: 4, ticker: "AAPL", company: "Apple Inc.", setup: "Support Bounce", side: "Long", entry: 175.25, exit: 178.40, pnl: 420.00, time: "2 days ago" },
-  { id: 5, ticker: "AMD", company: "Advanced Micro", setup: "VWAP Reclaim", side: "Long", entry: 105.10, exit: 108.20, pnl: 620.00, time: "2 days ago" },
-  { id: 6, ticker: "META", company: "Meta Platforms", setup: "Mean Reversion", side: "Short", entry: 300.50, exit: 295.20, pnl: 1060.00, time: "3 days ago" },
-];
 
 export default function Home() {
   const [timeframe, setTimeframe] = useState<'90D' | '30D' | '7D'>('90D');
   const [currency, setCurrency] = useState('USD');
   const [stats, setStats] = useState<any>(null);
+  const [trades, setTrades] = useState<any[]>([]);
 
   // Ideally this comes from a global AuthProvider
   const isPro = true; 
-
-  // Fetch dynamic stats from our new API route
-  // We use useEffect here since this is a client component
-  // In a real production app, we might use SWR or React Query
-  useState(() => {
-    const fetchStats = async () => {
+  
+  // Fetch dynamic stats and trades from our new API route
+  useEffect(() => {
+    const fetchData = async () => {
       try {
-        const res = await fetch(`/api/trades/stats?currency=${currency}`);
-        const data = await res.json();
-        if (data && !data.error) {
-          setStats(data);
+        const statsRes = await fetch(`/api/trades/stats?currency=${currency}`);
+        const statsData = await statsRes.json();
+        if (statsData && !statsData.error) {
+          setStats(statsData);
+        }
+
+        const tradesRes = await fetch(`/api/trades`);
+        const tradesData = await tradesRes.json();
+        if (Array.isArray(tradesData)) {
+          // Filter by currency
+          const filteredTrades = tradesData.filter((t: any) => t.currency === currency);
+          setTrades(filteredTrades);
         }
       } catch (err) {
-        console.error("Failed to fetch stats", err);
+        console.error("Failed to fetch data", err);
       }
     };
-    fetchStats();
-  }); // Using empty dependency array to fetch once, but let's use useEffect properly. Wait, I used useState by accident. Let me rewrite carefully.
+    fetchData();
+  }, [currency]);
 
   return (
     <motion.div variants={container} initial="hidden" animate="show" className="space-y-6 pb-12">
@@ -167,7 +161,7 @@ export default function Home() {
               </div>
             </div>
             <div className="h-72 w-full mt-auto">
-              <EquityChart timeframe={timeframe} />
+              <EquityChart timeframe={timeframe} trades={trades} />
             </div>
           </MagicCard>
         </motion.div>
@@ -238,32 +232,34 @@ export default function Home() {
             <div className="absolute top-0 left-0 right-0 h-8 bg-gradient-to-b from-card to-transparent pointer-events-none z-10" />
             <ScrollArea className="w-full h-[320px]">
               <div className="px-6 py-4 flex flex-col gap-2">
-                {recentTrades.map((trade) => (
+                {trades.length === 0 ? (
+                  <div className="text-center text-sm text-muted-foreground py-8">No recent activity</div>
+                ) : trades.slice(0, 10).map((trade) => (
                   <Link href={`/dashboard/journal?trade=${trade.id}`} key={trade.id}>
                     <div className="group flex items-center justify-between p-3 rounded-xl hover:bg-black/5 dark:hover:bg-white/5 transition-colors cursor-pointer border border-transparent hover:border-border/50">
                       <div className="flex items-center gap-4">
-                        <div className={`w-10 h-10 rounded-full flex items-center justify-center ${trade.pnl >= 0 ? 'bg-emerald-500/10 text-emerald-500' : 'bg-rose-500/10 text-rose-500'}`}>
-                          {trade.pnl >= 0 ? <ArrowUpRight size={18} /> : <ArrowDownRight size={18} />}
+                        <div className={`w-10 h-10 rounded-full flex items-center justify-center ${trade.realizedPnl >= 0 ? 'bg-emerald-500/10 text-emerald-500' : 'bg-rose-500/10 text-rose-500'}`}>
+                          {trade.realizedPnl >= 0 ? <ArrowUpRight size={18} /> : <ArrowDownRight size={18} />}
                         </div>
                         <div>
                           <div className="flex items-center gap-2">
-                            <h4 className="text-sm font-bold text-foreground">{trade.ticker}</h4>
-                            <span className="text-[10px] font-semibold px-2 py-0.5 rounded-full bg-secondary text-muted-foreground">{trade.setup}</span>
+                            <h4 className="text-sm font-bold text-foreground">{trade.symbol}</h4>
+                            {trade.setup && <span className="text-[10px] font-semibold px-2 py-0.5 rounded-full bg-secondary text-muted-foreground">{trade.setup}</span>}
                           </div>
                           <div className="flex items-center gap-2 text-xs text-muted-foreground mt-0.5">
                             <span className="font-medium">{trade.side}</span>
                             <span className="w-1 h-1 rounded-full bg-border" />
-                            <span>{trade.entry} &rarr; {trade.exit || 'Open'}</span>
+                            <span>{trade.entryPrice} &rarr; {trade.exitPrice || 'Open'}</span>
                           </div>
                         </div>
                       </div>
                       <div className="flex items-center gap-6">
                         <div className="text-right">
-                          <div className={`text-sm font-bold ${trade.pnl >= 0 ? 'text-emerald-500' : 'text-rose-500'}`}>
-                            {trade.pnl >= 0 ? '+' : ''}{currency === 'USD' ? '$' : '₹'}{Math.abs(trade.pnl).toFixed(2)}
+                          <div className={`text-sm font-bold ${trade.realizedPnl >= 0 ? 'text-emerald-500' : 'text-rose-500'}`}>
+                            {trade.realizedPnl >= 0 ? '+' : ''}{currency === 'USD' ? '$' : '₹'}{Math.abs(trade.realizedPnl || 0).toFixed(2)}
                           </div>
                           <div className="flex items-center justify-end gap-1 text-[10px] text-muted-foreground mt-0.5 font-medium">
-                            <Clock size={10} /> {trade.time}
+                            <Clock size={10} /> {new Date(trade.closedAt || trade.openedAt).toLocaleDateString()}
                           </div>
                         </div>
                         <ChevronRight size={16} className="text-muted-foreground opacity-0 group-hover:opacity-100 transition-opacity translate-x-[-10px] group-hover:translate-x-0 transition-transform" />
