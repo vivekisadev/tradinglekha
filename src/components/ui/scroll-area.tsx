@@ -8,6 +8,7 @@ export const ScrollArea = React.forwardRef<
   <div
     ref={ref}
     className={cn("relative overflow-auto", className)}
+    data-lenis-prevent="true"
     {...props}
   >
     {children}

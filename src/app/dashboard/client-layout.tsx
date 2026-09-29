@@ -61,7 +61,7 @@ export function DashboardClientLayout({
             </div>
           </div>
           
-          <nav className="flex-1 px-3 space-y-1 overflow-y-auto custom-scrollbar mt-4">
+          <nav className="flex-1 px-3 space-y-1 overflow-y-auto custom-scrollbar mt-4" data-lenis-prevent="true">
             <NavLinks />
           </nav>
           
@@ -81,7 +81,7 @@ export function DashboardClientLayout({
                   <X size={20} />
                 </button>
               </div>
-              <nav className="flex-1 px-3 space-y-1 overflow-y-auto custom-scrollbar mt-4">
+              <nav className="flex-1 px-3 space-y-1 overflow-y-auto custom-scrollbar mt-4" data-lenis-prevent="true">
                 <NavLinks />
               </nav>
               <div className="p-4 border-t border-border bg-secondary/50">
@@ -92,7 +92,7 @@ export function DashboardClientLayout({
         )}
 
         {/* Main Content */}
-        <div className="flex-1 flex flex-col relative z-10 overflow-hidden bg-background">
+        <div className="flex-1 min-w-0 min-h-0 flex flex-col relative z-10 overflow-hidden bg-background">
           <DotPattern width={20} height={20} cx={1} cy={1} cr={1.5} className="opacity-50" />
           
           {/* Topbar */}
@@ -134,7 +134,7 @@ export function DashboardClientLayout({
   <span className="font-bold text-sm text-foreground">Notifications</span>
   <span className="text-xs text-indigo-500 cursor-pointer hover:underline">Mark all read</span>
 </div>
-<div className="p-2 bg-card rounded-b-xl max-h-64 overflow-y-auto custom-scrollbar">
+<div className="p-2 bg-card rounded-b-xl max-h-64 overflow-y-auto custom-scrollbar" data-lenis-prevent="true">
 <Dropdown.Menu className="p-0 outline-none">
                         <Dropdown.Item className="p-2 mb-1 rounded-lg" unstyled>
                           <p className="text-sm font-semibold text-foreground">EA Sync Successful</p>
@@ -178,7 +178,7 @@ export function DashboardClientLayout({
           </header>
 
           {/* Scrollable Page Content */}
-          <main className="flex-1 overflow-y-scroll p-4 md:p-8 relative z-10 custom-scrollbar">
+          <main className="flex-1 min-h-0 overflow-y-auto p-4 md:p-8 relative z-10 custom-scrollbar" data-lenis-prevent="true">
             <div className="max-w-[1400px] mx-auto">
               {children}
             </div>

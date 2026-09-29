@@ -146,7 +146,7 @@ export function CalendarClient({ trades }: { trades: any[] }) {
 
             {/* Trades List */}
             <h4 className="text-sm font-bold text-foreground mb-3 border-b border-border pb-2">Trade History</h4>
-            <div className="space-y-3 max-h-[400px] overflow-y-auto custom-scrollbar pr-2">
+            <div className="space-y-3 max-h-[400px] overflow-y-auto custom-scrollbar pr-2" data-lenis-prevent="true">
               {selectedStats.trades.map((trade: any) => (
                 <div key={trade.id} className="p-3 bg-secondary/50 border border-border rounded-lg flex items-center justify-between">
                   <div className="flex items-center gap-3">
