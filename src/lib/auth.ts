@@ -70,6 +70,12 @@ export async function getUser() {
       }
     });
 
+    if (!user) {
+      const cookieStore = await cookies();
+      cookieStore.delete("tradle_session");
+      return null;
+    }
+
     // Temporary logic: hardcode isPro to false until subscriptions are fully implemented
     const isPro = false;
 
