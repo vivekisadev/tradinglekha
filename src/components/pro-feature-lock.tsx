@@ -1,7 +1,7 @@
 "use client";
 
 import { motion, AnimatePresence } from "framer-motion";
-import { Lock, Sparkles, ChevronRight, X } from "lucide-react";
+import { Lock, Sparkles, ChevronRight, X, Check } from "lucide-react";
 import Link from "next/link";
 import { MagicCard } from "@/components/ui/magic-card";
 import { useState } from "react";
