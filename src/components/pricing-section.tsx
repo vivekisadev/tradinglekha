@@ -140,10 +140,22 @@ export function PricingSection({ isLoggedIn = false, isPro = false }: { isLogged
               </div>
               
               <ul className="flex flex-col gap-4 mb-10 flex-1">
-                {plan.features(billingCycle).map(feature => (
-                  <li key={feature} className={`flex items-start gap-3 text-sm ${isActive ? 'text-sky-900' : 'text-muted-foreground'}`}>
+                {plan.features(billingCycle).map((feature, idx) => (
+                  <li key={idx} className={`flex items-start gap-3 text-sm ${isActive ? 'text-sky-900' : 'text-muted-foreground'}`}>
                     <CheckCircle2 className={`w-5 h-5 shrink-0 mt-0.5 ${isActive ? 'text-emerald-400' : 'text-emerald-500'}`} /> 
-                    <span>{feature}</span>
+                    <div className="flex-1 overflow-hidden relative">
+                      <AnimatePresence mode="popLayout">
+                        <motion.div
+                          key={feature}
+                          initial={{ y: 20, opacity: 0 }}
+                          animate={{ y: 0, opacity: 1 }}
+                          exit={{ y: -20, opacity: 0 }}
+                          transition={{ duration: 0.4, type: "spring", stiffness: 300, damping: 30 }}
+                        >
+                          {feature}
+                        </motion.div>
+                      </AnimatePresence>
+                    </div>
                   </li>
                 ))}
               </ul>
