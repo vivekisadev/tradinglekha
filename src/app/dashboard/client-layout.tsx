@@ -116,7 +116,7 @@ export function DashboardClientLayout({
             
             <div className="flex items-center gap-4 md:gap-6 relative">
               <div className="hidden lg:block">
-                <AccountSwitcher />
+                <AccountSwitcher isPro={user?.isPro} />
               </div>
               <div className="hidden lg:block h-4 w-px bg-border"></div>
               
